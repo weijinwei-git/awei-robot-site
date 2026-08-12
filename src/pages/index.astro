@@ -197,7 +197,7 @@ const base = import.meta.env.BASE_URL;
             i === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]',
           ]}>
             <img
-              src={p.image}
+              src={base + p.image.slice(1)}
               alt={p.name}
               loading="lazy"
               class="h-full w-full object-cover opacity-80 grayscale-[30%] transition-all duration-700 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
