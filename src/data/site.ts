@@ -66,17 +66,6 @@ export const products: Product[] = [
     params: ['四足结构', '铝合金骨架', '多自由度', '运动控制'],
     accent: 'neon',
   },
-  {
-    id: '7kg-black',
-    name: '7KG 改色款',
-    en: 'Custom Edition',
-    type: '黑色定制协作臂',
-    tag: 'CUSTOM',
-    image: '/products/7kg-black.jpg',
-    desc: '7kg 负载协作臂定制改色版本，黑化机身，面向品牌化与展示场景。',
-    params: ['定制改色', '7kg 负载', '品牌展示', '个性化'],
-    accent: 'electric',
-  },
 ];
 
 export const capabilities = [

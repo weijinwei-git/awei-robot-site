@@ -15,7 +15,7 @@ function lerpAngle(a: number, b: number, t: number): number {
   return a + d * t;
 }
 
-type Mood = 'walk' | 'idle' | 'jump' | 'roll' | 'excited';
+type Mood = 'chase' | 'idle' | 'jump' | 'roll' | 'beg';
 
 /* ---------------- 机械狗实体 ---------------- */
 
@@ -34,7 +34,6 @@ function Pet() {
     mood: Mood;
     moodTimer: number;
     pos: THREE.Vector3;
-    target: THREE.Vector3;
     heading: number;
     speed: number;
     walkPhase: number;
@@ -42,24 +41,25 @@ function Pet() {
     jumpT: number;
     jumpStartY: number;
     rollT: number;
+    begT: number;
     mouseWorld: THREE.Vector3;
-    excitedT: number;
     facing: number;
+    moveTilt: number;
   }>({
-    mood: 'walk',
+    mood: 'idle',
     moodTimer: 0,
     pos: new THREE.Vector3(0, 0, 0),
-    target: new THREE.Vector3(2, 1, 0),
     heading: 0,
-    speed: 1.1,
+    speed: 2.4,
     walkPhase: 0,
     idleT: 0,
     jumpT: -1,
     jumpStartY: 0,
     rollT: -1,
+    begT: -1,
     mouseWorld: new THREE.Vector3(99, 99, 0),
-    excitedT: 0,
     facing: 0,
+    moveTilt: 0,
   });
 
   // 材质：统一银灰金属（模型部件太多无法细分）
@@ -67,9 +67,9 @@ function Pet() {
     scene.traverse((o) => {
       if ((o as THREE.Mesh).isMesh) {
         (o as THREE.Mesh).material = new THREE.MeshStandardMaterial({
-          color: '#9aa0aa',
-          metalness: 0.8,
-          roughness: 0.35,
+          color: '#c6ccd4',
+          metalness: 0.65,
+          roughness: 0.28,
         });
       }
     });
@@ -77,27 +77,17 @@ function Pet() {
 
   // 尺寸与边界
   const dims = useMemo(() => {
-    const s = (viewport.height * 0.16) / DOG_HEIGHT;
+    const s = (viewport.height * 0.26) / DOG_HEIGHT;
     return {
       scale: s,
-      groundRadius: 0.55 * s,
+      groundRadius: 0.8 * s,
       bounds: {
-        x: viewport.width * 0.36,
-        yMin: -viewport.height * 0.34,
-        yMax: viewport.height * 0.28,
+        x: viewport.width * 0.38,
+        yMin: -viewport.height * 0.36,
+        yMax: viewport.height * 0.3,
       },
     };
   }, [viewport]);
-
-  // 随机目标
-  const pickTarget = () => {
-    const b = dims.bounds;
-    state.current.target.set(
-      (Math.random() * 2 - 1) * b.x,
-      b.yMin + Math.random() * (b.yMax - b.yMin),
-      0
-    );
-  };
 
   // 视口坐标 → 世界坐标（z=0 平面）
   const screenToWorld = (clientX: number, clientY: number) => {
@@ -110,6 +100,23 @@ function Pet() {
     );
   };
 
+  // 撒娇动作随机三选一
+  const playTrick = () => {
+    const s = state.current;
+    const r = Math.random();
+    if (r < 0.34) {
+      s.mood = 'jump';
+      s.jumpT = 0;
+      s.jumpStartY = s.pos.y;
+    } else if (r < 0.67) {
+      s.mood = 'roll';
+      s.rollT = 0;
+    } else {
+      s.mood = 'beg';
+      s.begT = 0;
+    }
+  };
+
   useEffect(() => {
     const onMove = (e: MouseEvent) => {
       state.current.mouseWorld.copy(screenToWorld(e.clientX, e.clientY));
@@ -117,31 +124,16 @@ function Pet() {
     const onDown = (e: MouseEvent) => {
       const m = screenToWorld(e.clientX, e.clientY);
       const s = state.current;
-      if (s.pos.distanceTo(m) < dims.scale * 1.5) {
-        // 撒娇：跳到翻跟头
-        if (Math.random() < 0.5) {
-          s.mood = 'jump';
-          s.jumpT = 0;
-          s.jumpStartY = s.pos.y;
-        } else {
-          s.mood = 'roll';
-          s.rollT = 0;
-        }
-        s.excitedT = 3;
+      if (s.pos.distanceTo(m) < dims.scale * 1.8) {
+        playTrick();
       }
-    };
-    const onScroll = () => {
-      state.current.mood = 'walk';
-      pickTarget();
     };
 
     window.addEventListener('mousemove', onMove);
     window.addEventListener('pointerdown', onDown);
-    window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('pointerdown', onDown);
-      window.removeEventListener('scroll', onScroll);
     };
   }, [dims]);
 
@@ -150,79 +142,61 @@ function Pet() {
     if (!g) return;
     const s = state.current;
     const dt = Math.min(delta, 0.05);
+    const acting = s.mood === 'jump' || s.mood === 'roll' || s.mood === 'beg';
 
-    // 鼠标距离
-    const distToMouse = s.pos.distanceTo(s.mouseWorld);
-    if (s.mood !== 'jump' && s.mood !== 'roll') {
-      if (distToMouse < dims.scale * 2.6) {
-        s.mood = 'excited';
-        s.excitedT = 0.15;
-      } else if (s.mood === 'excited') {
-        s.excitedT -= dt;
-        if (s.excitedT <= 0) s.mood = 'walk';
-      }
-    }
+    // ---------- 跟随鼠标（含 z 轴前后感） ----------
+    if (!acting) {
+      const m = s.mouseWorld;
+      // 鼠标靠上 → 狗走近相机（z 负，变大）；靠下 → 走远（z 正，变小）
+      const zTarget = THREE.MathUtils.clamp(
+        (m.y / (viewport.height / 2)) * 1.5,
+        -1.8,
+        1.2
+      );
+      s.pos.z += (zTarget - s.pos.z) * Math.min(1, dt * 2.6);
 
-    // 朝向鼠标（excited / idle 时）
-    if (s.mood === 'excited' || s.mood === 'idle') {
-      const dx = s.mouseWorld.x - s.pos.x;
-      const dy = s.mouseWorld.y - s.pos.y;
-      const targetFacing = Math.atan2(dx, dy);
-      s.facing = lerpAngle(s.facing, targetFacing, 0.1);
-    }
-
-    // ---------- 状态机 ----------
-    if (s.mood === 'walk') {
-      const dx = s.target.x - s.pos.x;
-      const dy = s.target.y - s.pos.y;
+      const dx = m.x - s.pos.x;
+      const dy = m.y - s.pos.y;
       const dist = Math.hypot(dx, dy);
-      if (dist < 0.05) {
-        s.mood = 'idle';
-        s.idleT = 1.5 + Math.random() * 2.5;
-      } else {
+      const stopR = dims.scale * 0.5;
+      if (dist > stopR) {
+        s.mood = 'chase';
         s.pos.x += (dx / dist) * s.speed * dt;
         s.pos.y += (dy / dist) * s.speed * dt;
-        s.walkPhase += dt * 11;
-        s.facing = lerpAngle(s.facing, Math.atan2(dx, dy), 0.12);
+        s.walkPhase += dt * 12;
+        s.facing = lerpAngle(s.facing, Math.atan2(dx, dy), 0.14);
+      } else if (s.mood !== 'idle') {
+        s.mood = 'idle';
+        s.idleT = 0;
       }
-    } else if (s.mood === 'idle') {
-      s.idleT -= dt;
-      if (s.idleT <= 0) {
-        s.mood = 'walk';
-        pickTarget();
-      }
-    } else if (s.mood === 'excited') {
-      // 小跳兴奋
-      const hop = Math.abs(Math.sin(s.walkPhase * 1.4)) * 0.05;
-      s.pos.y += hop * 0.6;
-      s.walkPhase += dt * 18;
-      // 缓慢向鼠标靠近
-      const dx = s.mouseWorld.x - s.pos.x;
-      const dy = s.mouseWorld.y - s.pos.y;
-      const dist = Math.hypot(dx, dy);
-      if (dist > dims.scale * 1.6) {
-        s.pos.x += (dx / dist) * s.speed * 0.85 * dt;
-        s.pos.y += (dy / dist) * s.speed * 0.85 * dt;
-      }
+    }
+
+    // ---------- 状态机动作 ----------
+    if (s.mood === 'idle') {
+      s.idleT += dt;
     } else if (s.mood === 'jump') {
       s.jumpT += dt;
-      const t = s.jumpT;
-      if (t > 1.4) {
-        s.mood = 'walk';
+      if (s.jumpT > 1.4) {
+        s.mood = 'chase';
         s.jumpT = -1;
       } else {
-        // 抛物线 2 跳 + 空中翻转
-        const seg = t % 0.7;
-        const h = Math.sin((seg / 0.7) * Math.PI) * 0.9;
-        const jumpIdx = Math.floor(t / 0.7);
-        s.pos.y = s.jumpStartY + h * (1 - jumpIdx * 0.25);
-        if (jumpIdx === 1) h > 0.01 && (s.facing += dt * 4); // 空中转体
+        const seg = s.jumpT % 0.7;
+        const h = Math.sin((seg / 0.7) * Math.PI) * 1.1;
+        const jumpIdx = Math.floor(s.jumpT / 0.7);
+        s.pos.y = s.jumpStartY + h * (1 - jumpIdx * 0.22);
+        if (jumpIdx === 1 && h > 0.01) s.facing += dt * 4.2;
       }
     } else if (s.mood === 'roll') {
       s.rollT += dt;
-      if (s.rollT > 1.1) {
-        s.mood = 'walk';
+      if (s.rollT > 1.2) {
+        s.mood = 'chase';
         s.rollT = -1;
+      }
+    } else if (s.mood === 'beg') {
+      s.begT += dt;
+      if (s.begT > 2.2) {
+        s.mood = 'chase';
+        s.begT = -1;
       }
     }
 
@@ -230,35 +204,45 @@ function Pet() {
     const b = dims.bounds;
     s.pos.x = THREE.MathUtils.clamp(s.pos.x, -b.x, b.x);
     s.pos.y = THREE.MathUtils.clamp(s.pos.y, b.yMin, b.yMax);
+    s.pos.z = THREE.MathUtils.clamp(s.pos.z, -1.8, 1.2);
 
     // ---------- 应用到模型 ----------
     g.position.copy(s.pos);
     g.rotation.y = s.facing;
+    g.scale.setScalar(dims.scale);
 
-    // 身体动画
-    if (s.mood === 'walk') {
-      const bob = Math.sin(s.walkPhase) * 0.045 * dims.scale * 3;
+    if (s.mood === 'chase') {
+      // 奔跑：起伏 + 侧倾 + 前倾（立体感）
+      const bob = Math.sin(s.walkPhase) * 0.05 * dims.scale * 3;
+      const lean = Math.sin(s.walkPhase * 0.5) * 0.09;
+      const speedLean = Math.min(s.speed * 0.035, 0.14);
       g.position.y += bob;
-      g.rotation.z = Math.sin(s.walkPhase * 0.5) * 0.06;
-      g.rotation.x = Math.sin(s.walkPhase) * 0.045;
+      g.rotation.z = lean;
+      g.rotation.x = speedLean + Math.sin(s.walkPhase) * 0.05;
+      g.scale.y = dims.scale * (1 - Math.abs(Math.sin(s.walkPhase * 0.5)) * 0.04);
     } else if (s.mood === 'idle') {
-      const breath = Math.sin(s.idleT * 2.2) * 0.012;
+      const breath = Math.sin(s.idleT * 2.4) * 0.015;
       g.position.y += breath;
-      g.rotation.z = Math.sin(s.idleT * 1.3) * 0.03;
-    } else if (s.mood === 'excited') {
-      const shake = Math.sin(s.walkPhase) * 0.05;
-      g.rotation.z = shake;
-      g.rotation.x = Math.cos(s.walkPhase * 0.7) * 0.05;
-      g.position.y += Math.abs(Math.sin(s.walkPhase)) * 0.03;
+      g.rotation.z = Math.sin(s.idleT * 1.4) * 0.05;
+      // 摇尾
+      g.rotation.x = Math.sin(s.idleT * 9) * 0.06;
     } else if (s.mood === 'jump') {
-      g.rotation.x = Math.sin(s.jumpT * 6) * 0.12;
+      g.rotation.x = Math.sin(s.jumpT * 6) * 0.14;
+      g.position.y += Math.abs(Math.sin(s.jumpT * 6)) * 0.05;
     } else if (s.mood === 'roll') {
-      g.rotation.z = (s.rollT / 1.1) * Math.PI * 2;
-      g.position.y += Math.abs(Math.sin((s.rollT / 1.1) * Math.PI)) * 0.35;
-      s.pos.x += dt * 0.5;
+      g.rotation.z = (s.rollT / 1.2) * Math.PI * 2;
+      g.position.y += Math.abs(Math.sin((s.rollT / 1.2) * Math.PI)) * 0.4;
+      s.pos.x += dt * 0.6;
+    } else if (s.mood === 'beg') {
+      // 坐姿讨食：压扁 + 前倾 + 快速点头 + 疯狂摇尾
+      const t = s.begT;
+      const squash = 1 - Math.min(0.28, t * 0.35);
+      g.scale.y = dims.scale * squash;
+      g.position.y -= dims.scale * (1 - squash) * 0.5;
+      g.rotation.x = 0.42 + Math.sin(t * 16) * 0.16;
+      g.rotation.z = Math.sin(t * 22) * 0.22;
     }
 
-    g.scale.setScalar(dims.scale);
     g.rotation.order = 'YXZ';
   });
 
@@ -271,7 +255,7 @@ function Pet() {
         <meshBasicMaterial
           color="#c7f23d"
           transparent
-          opacity={0.12}
+          opacity={0.3}
           blending={THREE.AdditiveBlending}
           depthWrite={false}
         />
