@@ -107,55 +107,57 @@ export function initSvgDraw() {
   });
 }
 
-/* ---------------- 自定义雷达光标 ---------------- */
+/* ---------------- 自定义 HUD 光标（三层滞差，无十字线） ---------------- */
 
 export function initRadarCursor() {
   const isTouch = window.matchMedia('(pointer: coarse)').matches;
   if (isTouch) return;
 
   const cursor = document.createElement('div');
-  cursor.className = 'radar-cursor';
+  cursor.className = 'hud-cursor';
+  const core = document.createElement('div');
+  core.className = 'hud-core';
   const ring = document.createElement('div');
-  ring.className = 'radar-ring';
+  ring.className = 'hud-ring';
+  const diamond = document.createElement('div');
+  diamond.className = 'hud-diamond';
+  const diamondSpin = document.createElement('div');
+  diamondSpin.className = 'hud-diamond-spin';
+  diamond.appendChild(diamondSpin);
   const label = document.createElement('div');
-  label.className = 'radar-label';
+  label.className = 'hud-label';
+  cursor.appendChild(core);
   cursor.appendChild(ring);
+  cursor.appendChild(diamond);
   cursor.appendChild(label);
   document.body.appendChild(cursor);
 
-  let x = window.innerWidth / 2;
-  let y = window.innerHeight / 2;
-  let tx = x;
-  let ty = y;
   let visible = false;
 
-  const moveX = gsap.quickTo(cursor, 'x', { duration: 0.35, ease: 'power3.out' });
-  const moveY = gsap.quickTo(cursor, 'y', { duration: 0.55, ease: 'power3.out' });
-  const ringX = gsap.quickTo(ring, 'x', { duration: 0.9, ease: 'power3.out' });
-  const ringY = gsap.quickTo(ring, 'y', { duration: 1.2, ease: 'power3.out' });
+  const moveCore = gsap.quickTo(core, 'x', { duration: 0.08, ease: 'power2.out' });
+  const moveCoreY = gsap.quickTo(core, 'y', { duration: 0.08, ease: 'power2.out' });
+  const moveRing = gsap.quickTo(ring, 'x', { duration: 0.35, ease: 'power3.out' });
+  const moveRingY = gsap.quickTo(ring, 'y', { duration: 0.45, ease: 'power3.out' });
+  const moveDiamond = gsap.quickTo(diamond, 'x', { duration: 0.9, ease: 'power3.out' });
+  const moveDiamondY = gsap.quickTo(diamond, 'y', { duration: 1.15, ease: 'power3.out' });
 
   window.addEventListener('mousemove', (e) => {
-    tx = e.clientX;
-    ty = e.clientY;
     if (!visible) {
       visible = true;
-      gsap.to(cursor, { opacity: 1, scale: 1, duration: 0.4 });
-      gsap.to(ring, { opacity: 0.5, duration: 0.6, delay: 0.15 });
+      gsap.to(cursor, { opacity: 1, duration: 0.4 });
     }
-    moveX(tx);
-    moveY(ty);
-    ringX(tx);
-    ringY(ty);
+    moveCore(e.clientX);
+    moveCoreY(e.clientY);
+    moveRing(e.clientX);
+    moveRingY(e.clientY);
+    moveDiamond(e.clientX);
+    moveDiamondY(e.clientY);
   });
 
   document.addEventListener('mouseleave', () => {
     visible = false;
-    gsap.to(cursor, { opacity: 0, scale: 0.6, duration: 0.3 });
-    gsap.to(ring, { opacity: 0, duration: 0.3 });
+    gsap.to(cursor, { opacity: 0, duration: 0.35 });
   });
-
-  const interactive =
-    'a, button, video, .work-card, [data-cursor], .marquee-item, img';
 
   const setLabel = (text: string) => {
     label.textContent = text;
@@ -167,7 +169,7 @@ export function initRadarCursor() {
     const video = t.closest('video');
     const card = t.closest('.work-card');
 
-    cursor.classList.add('radar-active');
+    cursor.classList.add('hud-active');
     if (link) {
       const href = link.getAttribute('href') || '';
       if (href.startsWith('tel:')) setLabel('CALL://');
@@ -178,21 +180,20 @@ export function initRadarCursor() {
     } else if (card) {
       setLabel('VIEW://' + (card.dataset.index || ''));
     } else {
-      cursor.classList.remove('radar-active');
+      cursor.classList.remove('hud-active');
       label.textContent = '';
     }
   });
 
   document.addEventListener('click', (e) => {
     const t = e.target as HTMLElement;
-    if (t.closest(interactive)) {
-      ring.style.transform = 'scale(1.6)';
-      setTimeout(() => (ring.style.transform = 'scale(1)'), 300);
+    if (t.closest('a, button, video, .work-card')) {
+      gsap.fromTo(
+        ring,
+        { scale: 1.8, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' }
+      );
     }
-  });
-
-  window.addEventListener('scroll', () => {
-    // 无操作：光标是 fixed 定位，由 quickTo 管理
   });
 }
 

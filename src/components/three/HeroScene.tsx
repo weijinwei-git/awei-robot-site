@@ -231,7 +231,7 @@ export default function HeroScene() {
     <Canvas
       camera={{ position: [0, 0.4, 9], fov: 50 }}
       dpr={[1, 1.75]}
-      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
+      gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
       style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}
     >
       <Suspense fallback={null}>
