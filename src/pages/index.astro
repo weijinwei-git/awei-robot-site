@@ -5,14 +5,33 @@ import ParticleField2D from '../components/ParticleField2D';
 import Counter from '../components/Counter';
 import Marquee from '../components/Marquee.astro';
 import { products, capabilities, stats } from '../data/site';
-import { initReveal } from '../scripts/reveal';
 
 const PHONE = '15976196269';
 ---
 
 <Layout>
   <script>
-    initReveal();
+    import {
+      initSmoothScroll,
+      initAnchorNav,
+      initHeroIntro,
+      initScrollReveal,
+      initWorksReveal,
+      initSvgDraw,
+      initRadarCursor,
+      initMechanicalWiggle,
+      initTimeline,
+    } from '../scripts/fx';
+
+    initSmoothScroll();
+    initAnchorNav();
+    initHeroIntro();
+    initScrollReveal();
+    initWorksReveal();
+    initSvgDraw();
+    initRadarCursor();
+    initMechanicalWiggle();
+    initTimeline();
   </script>
   <ParticleField2D client:load />
 
@@ -47,22 +66,26 @@ const PHONE = '15976196269';
 
     <div class="relative z-10 mx-auto w-full max-w-7xl px-6 pt-28 pb-16">
       <div class="max-w-3xl">
-        <p class="mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.35em] text-neon">
+        <p class="hero-badge mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.35em] text-neon">
           <span class="inline-block h-2 w-2 animate-blink bg-neon" />
           ROBOT BUILDER · 机器人开发者
         </p>
 
         <h1 class="font-display text-[clamp(4rem,13vw,9.5rem)] font-black leading-[0.95] tracking-tight">
-          阿威
-          <span class="block text-neon">机器人</span>
+          <span class="block overflow-hidden">
+            <span class="hero-title-line block">阿威</span>
+          </span>
+          <span class="block overflow-hidden">
+            <span class="hero-title-line block text-neon">机器人</span>
+          </span>
         </h1>
 
-        <p class="mt-8 max-w-xl text-lg leading-relaxed text-dim">
+        <p class="hero-desc mt-8 max-w-xl text-lg leading-relaxed text-dim">
           机械臂 · SCARA · 双臂机器人 · 四足机器狗 ——
           从结构设计到运动控制，把想法变成会动的机器。
         </p>
 
-        <div class="mt-10 flex flex-wrap items-center gap-4">
+        <div class="hero-cta mt-10 flex flex-wrap items-center gap-4">
           <a
             href={`tel:${PHONE}`}
             class="group relative border border-neon bg-neon px-8 py-4 font-display text-lg font-bold text-void transition-all hover:bg-transparent hover:text-neon"
@@ -78,7 +101,7 @@ const PHONE = '15976196269';
           </a>
         </div>
 
-        <div class="mt-16 flex items-center gap-6 text-xs uppercase tracking-[0.3em] text-dim">
+        <div class="hero-scroll mt-16 flex items-center gap-6 text-xs uppercase tracking-[0.3em] text-dim">
           <span>SCROLL</span>
           <span class="h-px w-24 bg-line" />
           <span class="text-neon">↓</span>
@@ -87,14 +110,72 @@ const PHONE = '15976196269';
     </div>
   </section>
 
+  <!-- ============ PRODUCT LINE TIMELINE ============ -->
+  <section id="line" class="timeline-section" data-timeline>
+    <div class="timeline-viewport">
+      <div class="mx-auto w-full max-w-7xl px-6">
+        <p class="mb-3 text-sm uppercase tracking-[0.35em] text-neon">/ 01 PRODUCT LINE</p>
+        <h2 class="font-display text-[clamp(2.6rem,6vw,5rem)] font-black leading-none tracking-tight">
+          产品线<span class="text-stroke-neon">演进</span>
+        </h2>
+        <p class="mt-4 max-w-md text-sm leading-relaxed text-dim">
+          六条产品线，从单臂到四足 —— 滚动查看每一代迭代。
+        </p>
+      </div>
+
+      <div class="timeline-track">
+        {products.map((p, i) => (
+          <article class="t-card group">
+            <div class="relative overflow-hidden">
+              <img
+                src={p.image}
+                alt={p.name}
+                loading="lazy"
+                class="aspect-[4/3] h-full w-full object-cover opacity-85 grayscale-[25%] transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-105"
+              />
+              <span class="t-num">{String(i + 1).padStart(2, '0')}</span>
+              <span class="absolute left-4 top-4 border border-neon bg-void/80 px-3 py-1 font-display text-xs font-bold tracking-widest text-neon">
+                {p.tag}
+              </span>
+            </div>
+            <div class="border-t border-line p-6">
+              <div class="flex items-baseline justify-between gap-4">
+                <h3 class="font-display text-2xl font-black tracking-tight text-ivory transition-colors group-hover:text-neon">
+                  {p.name}
+                </h3>
+                <span class="shrink-0 text-xs uppercase tracking-[0.25em] text-dim">{p.en}</span>
+              </div>
+              <p class="mt-1 text-xs font-bold uppercase tracking-widest text-neon">{p.type}</p>
+              <p class="mt-3 text-sm leading-relaxed text-dim">{p.desc}</p>
+            </div>
+            <div class="t-step" />
+          </article>
+        ))}
+      </div>
+
+      <p class="mt-12 hidden text-center text-xs uppercase tracking-[0.3em] text-dim lg:block">
+        → 继续滚动 · LINE EVOLUTION ←
+      </p>
+    </div>
+  </section>
+
   <!-- ============ WORKS ============ -->
-  <section id="works" class="reveal relative mx-auto max-w-7xl px-6 py-28">
+  <section id="works" class="reveal-gsap relative mx-auto max-w-7xl px-6 py-28">
     <div class="mb-16 flex items-end justify-between">
       <div>
         <p class="mb-3 text-sm uppercase tracking-[0.35em] text-neon">/ 01</p>
         <h2 class="font-display text-[clamp(3rem,8vw,6.5rem)] font-black leading-none tracking-tight">
           精选<span class="text-stroke-neon">作品</span>
         </h2>
+        <svg class="mt-3 h-2.5 w-48 text-neon" viewBox="0 0 192 10" fill="none" preserveAspectRatio="none">
+          <path
+            data-draw
+            d="M3 7 C 48 2, 144 2, 189 5"
+            stroke="currentColor"
+            stroke-width="2.5"
+            stroke-linecap="round"
+          />
+        </svg>
       </div>
       <p class="hidden max-w-xs text-sm leading-relaxed text-dim md:block">
         协作臂、SCARA、双臂、四足 —— 六条产品线，从图纸到样机。
@@ -111,7 +192,7 @@ const PHONE = '15976196269';
           ]}
         >
           <div class:list={[
-            'relative overflow-hidden',
+            'work-media relative overflow-hidden',
             i === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]',
           ]}>
             <img
@@ -150,7 +231,7 @@ const PHONE = '15976196269';
   </section>
 
   <!-- ============ CAPABILITY ============ -->
-  <section id="capability" class="reveal border-y border-line">
+  <section id="capability" class="reveal-gsap border-y border-line">
     <div class="grid lg:grid-cols-2">
       <!-- 左：荧光绿满铺 + 数据 -->
       <div class="bg-neon p-10 text-void sm:p-16">
@@ -207,7 +288,7 @@ const PHONE = '15976196269';
   </section>
 
   <!-- ============ MARQUEE ============ -->
-  <section class="reveal py-20">
+  <section class="reveal-gsap py-20">
     <p class="mb-10 text-center text-sm uppercase tracking-[0.35em] text-dim">
       COOPERATION · 合作过的方向
     </p>
@@ -215,7 +296,7 @@ const PHONE = '15976196269';
   </section>
 
   <!-- ============ DEMOS ============ -->
-  <section id="demos" class="reveal relative mx-auto max-w-7xl px-6 py-28">
+  <section id="demos" class="reveal-gsap relative mx-auto max-w-7xl px-6 py-28">
     <div class="mb-16 flex items-end justify-between">
       <div>
         <p class="mb-3 text-sm uppercase tracking-[0.35em] text-neon">/ 03</p>
@@ -300,7 +381,7 @@ const PHONE = '15976196269';
   </section>
 
   <!-- ============ CONTACT ============ -->
-  <section id="contact" class="reveal relative overflow-hidden border-t border-line py-32">
+  <section id="contact" class="reveal-gsap relative overflow-hidden border-t border-line py-32">
     <div class="hero-grid-bg absolute inset-0 opacity-60" />
     <div class="relative z-10 mx-auto max-w-5xl px-6 text-center">
       <p class="mb-6 text-sm uppercase tracking-[0.35em] text-neon">/ 04 联系</p>
@@ -347,10 +428,10 @@ const PHONE = '15976196269';
         <p class="mt-1 text-xs text-dim">© {new Date().getFullYear()} AWEI ROBOT · All rights reserved</p>
       </div>
       <div class="flex items-center gap-6 text-sm text-dim">
-        <a href={`tel:${PHONE}`} class="transition-colors hover:text-neon">电话</a>
-        <a href="#contact" class="transition-colors hover:text-neon">微信</a>
-        <a href="https://github.com" target="_blank" rel="noreferrer" class="transition-colors hover:text-neon">GitHub</a>
-        <a href="https://bilibili.com" target="_blank" rel="noreferrer" class="transition-colors hover:text-neon">B站</a>
+        <a href={`tel:${PHONE}`} data-wiggle class="transition-colors hover:text-neon">电话</a>
+        <a href="#contact" data-wiggle class="transition-colors hover:text-neon">微信</a>
+        <a href="https://github.com" target="_blank" rel="noreferrer" data-wiggle class="transition-colors hover:text-neon">GitHub</a>
+        <a href="https://bilibili.com" target="_blank" rel="noreferrer" data-wiggle class="transition-colors hover:text-neon">B站</a>
       </div>
     </div>
   </footer>

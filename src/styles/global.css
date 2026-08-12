@@ -48,7 +48,7 @@
 }
 
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: auto;
 }
 
 body {
@@ -130,4 +130,231 @@ body {
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* ---------------- 雷达光标（装饰叠加，不隐藏原生光标） ---------------- */
+
+.radar-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 9998;
+  width: 44px;
+  height: 44px;
+  pointer-events: none;
+  opacity: 0;
+  scale: 0.7;
+  mix-blend-mode: screen;
+}
+
+.radar-core {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  margin: -3px 0 0 -3px;
+  border-radius: 50%;
+  background: var(--color-neon);
+  box-shadow: 0 0 12px var(--color-neon);
+}
+
+.radar-ring {
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(199, 242, 61, 0.55);
+  border-radius: 50%;
+  transition: inset 0.25s ease, border-color 0.25s ease;
+}
+
+.radar-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(199, 242, 61, 0.45),
+    transparent 70deg,
+    transparent 360deg
+  );
+  animation: radar-sweep 1.6s linear infinite;
+}
+
+.radar-cursor::before,
+.radar-cursor::after {
+  content: "";
+  position: absolute;
+  background: rgba(199, 242, 61, 0.28);
+}
+
+.radar-cursor::before {
+  left: 50%;
+  top: -6px;
+  bottom: -6px;
+  width: 1px;
+}
+
+.radar-cursor::after {
+  top: 50%;
+  left: -6px;
+  right: -6px;
+  height: 1px;
+}
+
+.radar-label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--color-void);
+  background: var(--color-neon);
+  padding: 4px 10px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  white-space: nowrap;
+}
+
+.radar-cursor.radar-active .radar-label {
+  opacity: 1;
+}
+
+.radar-cursor.radar-active .radar-ring {
+  inset: -8px;
+  border-color: rgba(199, 242, 61, 0.9);
+}
+
+@keyframes radar-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* ---------------- 横滚产品线时间轴 ---------------- */
+
+.timeline-section {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-abyss);
+  border-block: 1px solid var(--color-line);
+}
+
+.timeline-viewport {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100vh;
+  padding-block: 96px;
+}
+
+.timeline-track {
+  position: relative;
+  display: flex;
+  gap: 28px;
+  width: max-content;
+  padding: 0 6vw;
+  margin-top: 64px;
+  will-change: transform;
+}
+
+.timeline-track::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-neon) 12%, var(--color-line) 88%, transparent);
+}
+
+.t-card {
+  position: relative;
+  flex-shrink: 0;
+  width: min(420px, 80vw);
+  border: 1px solid var(--color-line);
+  background: var(--color-card);
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+
+.t-card:hover {
+  border-color: var(--color-neon);
+  transform: translateY(-6px);
+}
+
+.t-card::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  right: -31px;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid var(--color-neon);
+  border-radius: 50%;
+  background: var(--color-void);
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.t-card:last-child::after {
+  display: none;
+}
+
+.t-num {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-family: var(--font-display);
+  font-size: 56px;
+  font-weight: 900;
+  line-height: 1;
+  color: var(--color-ivory);
+  opacity: 0.12;
+}
+
+.t-step {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: var(--color-neon);
+  width: 0;
+  transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.t-card:hover .t-step {
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .timeline-section {
+    overflow: visible;
+  }
+
+  .timeline-viewport {
+    min-height: auto;
+    padding-block: 80px;
+  }
+
+  .timeline-track {
+    flex-direction: column;
+    width: auto;
+    padding: 0 6vw;
+    margin-top: 48px;
+  }
+
+  .timeline-track::before {
+    display: none;
+  }
+
+  .t-card {
+    width: 100%;
+  }
+
+  .t-card::after {
+    display: none;
+  }
 }
