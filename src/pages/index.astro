@@ -1,17 +1,357 @@
 ---
+import Layout from '../layouts/Layout.astro';
+import HeroSceneWithFallback from '../components/three/HeroSceneWithFallback';
+import ParticleField2D from '../components/ParticleField2D';
+import Counter from '../components/Counter';
+import Marquee from '../components/Marquee.astro';
+import { products, capabilities, stats } from '../data/site';
+import { initReveal } from '../scripts/reveal';
 
+const PHONE = '15976196269';
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Layout>
+  <script>
+    initReveal();
+  </script>
+  <ParticleField2D client:load />
+
+  <!-- ============ NAV ============ -->
+  <header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-void/80 backdrop-blur-md">
+    <nav class="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+      <a href="#top" class="font-display text-xl font-bold tracking-tight text-ivory">
+        阿威<span class="text-neon">机器人</span>
+      </a>
+      <div class="hidden items-center gap-8 text-sm md:flex">
+        <a href="#works" class="text-dim transition-colors hover:text-neon">作品</a>
+        <a href="#capability" class="text-dim transition-colors hover:text-neon">能力</a>
+        <a href="#demos" class="text-dim transition-colors hover:text-neon">演示</a>
+        <a href="#contact" class="text-dim transition-colors hover:text-neon">联系</a>
+      </div>
+      <a
+        href={`tel:${PHONE}`}
+        class="border border-neon px-4 py-2 text-sm font-bold text-neon transition-all hover:bg-neon hover:text-void"
+      >
+        找我造机器人
+      </a>
+    </nav>
+  </header>
+
+  <!-- ============ HERO ============ -->
+  <section id="top" class="crt-vignette relative flex min-h-screen items-center overflow-hidden">
+    <div class="hero-grid-bg absolute inset-0" />
+    <div class="scanline absolute inset-0" />
+    <div class="absolute inset-0">
+      <HeroSceneWithFallback client:only="react" />
+    </div>
+
+    <div class="relative z-10 mx-auto w-full max-w-7xl px-6 pt-28 pb-16">
+      <div class="max-w-3xl">
+        <p class="mb-6 flex items-center gap-3 text-sm uppercase tracking-[0.35em] text-neon">
+          <span class="inline-block h-2 w-2 animate-blink bg-neon" />
+          ROBOT BUILDER · 机器人开发者
+        </p>
+
+        <h1 class="font-display text-[clamp(4rem,13vw,9.5rem)] font-black leading-[0.95] tracking-tight">
+          阿威
+          <span class="block text-neon">机器人</span>
+        </h1>
+
+        <p class="mt-8 max-w-xl text-lg leading-relaxed text-dim">
+          机械臂 · SCARA · 双臂机器人 · 四足机器狗 ——
+          从结构设计到运动控制，把想法变成会动的机器。
+        </p>
+
+        <div class="mt-10 flex flex-wrap items-center gap-4">
+          <a
+            href={`tel:${PHONE}`}
+            class="group relative border border-neon bg-neon px-8 py-4 font-display text-lg font-bold text-void transition-all hover:bg-transparent hover:text-neon"
+          >
+            电话直聊 {PHONE}
+            <span class="absolute -right-3 -top-3 hidden h-6 w-6 animate-pulse-slow border border-neon bg-void group-hover:bg-neon md:block" />
+          </a>
+          <a
+            href="#contact"
+            class="border border-line px-8 py-4 font-display text-lg font-bold text-ivory transition-all hover:border-neon hover:text-neon"
+          >
+            加微信 →
+          </a>
+        </div>
+
+        <div class="mt-16 flex items-center gap-6 text-xs uppercase tracking-[0.3em] text-dim">
+          <span>SCROLL</span>
+          <span class="h-px w-24 bg-line" />
+          <span class="text-neon">↓</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WORKS ============ -->
+  <section id="works" class="reveal relative mx-auto max-w-7xl px-6 py-28">
+    <div class="mb-16 flex items-end justify-between">
+      <div>
+        <p class="mb-3 text-sm uppercase tracking-[0.35em] text-neon">/ 01</p>
+        <h2 class="font-display text-[clamp(3rem,8vw,6.5rem)] font-black leading-none tracking-tight">
+          精选<span class="text-stroke-neon">作品</span>
+        </h2>
+      </div>
+      <p class="hidden max-w-xs text-sm leading-relaxed text-dim md:block">
+        协作臂、SCARA、双臂、四足 —— 六条产品线，从图纸到样机。
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+      {products.map((p, i) => (
+        <article
+          class:list={[
+            'group relative overflow-hidden border border-line bg-card transition-colors hover:border-neon',
+            i === 0 && 'lg:col-span-2 lg:row-span-2',
+            i === 3 && 'lg:col-span-2',
+          ]}
+        >
+          <div class:list={[
+            'relative overflow-hidden',
+            i === 0 ? 'aspect-[4/3]' : 'aspect-[16/10]',
+          ]}>
+            <img
+              src={p.image}
+              alt={p.name}
+              loading="lazy"
+              class="h-full w-full object-cover opacity-80 grayscale-[30%] transition-all duration-700 group-hover:scale-105 group-hover:opacity-100 group-hover:grayscale-0"
+            />
+            <span class="absolute left-4 top-4 border border-neon bg-void/80 px-3 py-1 font-display text-xs font-bold tracking-widest text-neon">
+              {p.tag}
+            </span>
+            <span class="absolute bottom-4 right-4 font-display text-5xl font-black text-ivory/10 transition-colors group-hover:text-neon/30">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+          </div>
+          <div class="border-t border-line p-6">
+            <div class="flex items-baseline justify-between gap-4">
+              <h3 class="font-display text-2xl font-black tracking-tight text-ivory transition-colors group-hover:text-neon">
+                {p.name}
+              </h3>
+              <span class="shrink-0 text-xs uppercase tracking-[0.25em] text-dim">{p.en}</span>
+            </div>
+            <p class="mt-2 text-sm text-neon">{p.type}</p>
+            <p class="mt-3 text-sm leading-relaxed text-dim">{p.desc}</p>
+            <div class="mt-4 flex flex-wrap gap-2">
+              {p.params.map((param) => (
+                <span key={param} class="border border-line px-2.5 py-1 text-xs text-dim">
+                  {param}
+                </span>
+              ))}
+            </div>
+          </div>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- ============ CAPABILITY ============ -->
+  <section id="capability" class="reveal border-y border-line">
+    <div class="grid lg:grid-cols-2">
+      <!-- 左：荧光绿满铺 + 数据 -->
+      <div class="bg-neon p-10 text-void sm:p-16">
+        <p class="mb-3 text-sm font-bold uppercase tracking-[0.35em] text-void/70">/ 02 能力</p>
+        <h2 class="font-display text-[clamp(2.6rem,6vw,5rem)] font-black leading-none tracking-tight">
+          能设计
+          <span class="block">能落地</span>
+          <span class="block text-void/50">能动起来</span>
+        </h2>
+        <p class="mt-8 max-w-md leading-relaxed text-void/80">
+          不止画图 —— 结构、电气、控制、上位机一条龙。每一台机器都从零部件开始，自己装配、自己标定、自己写控制。
+        </p>
+        <div class="mt-12 grid grid-cols-2 gap-8">
+          {stats.map((s) => (
+            <Counter
+              value={s.value}
+              suffix={s.suffix}
+              label={s.label}
+              decimal={s.decimal ?? 0}
+            />
+          ))}
+        </div>
+      </div>
+
+      <!-- 右：黑色能力清单 -->
+      <div class="bg-abyss p-10 sm:p-16">
+        <div class="mb-8 flex items-center gap-3">
+          <span class="text-sm uppercase tracking-[0.35em] text-neon">CAPABILITIES</span>
+          <span class="h-px flex-1 bg-line" />
+        </div>
+        <div class="flex flex-col">
+          {capabilities.map((c, i) => (
+            <div
+              class:list={[
+                'group flex items-center gap-6 border-t border-line py-6 last:border-b',
+                'transition-all hover:border-neon hover:bg-card',
+              ]}
+            >
+              <span class="w-10 shrink-0 border border-line px-2 py-1 text-center font-display text-xs font-bold text-neon group-hover:border-neon">
+                {c.icon}
+              </span>
+              <div>
+                <h3 class="font-display text-2xl font-black tracking-tight text-ivory transition-colors group-hover:text-neon">
+                  {c.title}
+                </h3>
+                <p class="mt-1 text-sm text-dim">{c.desc}</p>
+              </div>
+              <span class="ml-auto text-dim transition-all group-hover:translate-x-1 group-hover:text-neon">→</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ MARQUEE ============ -->
+  <section class="reveal py-20">
+    <p class="mb-10 text-center text-sm uppercase tracking-[0.35em] text-dim">
+      COOPERATION · 合作过的方向
+    </p>
+    <Marquee />
+  </section>
+
+  <!-- ============ DEMOS ============ -->
+  <section id="demos" class="reveal relative mx-auto max-w-7xl px-6 py-28">
+    <div class="mb-16 flex items-end justify-between">
+      <div>
+        <p class="mb-3 text-sm uppercase tracking-[0.35em] text-neon">/ 03</p>
+        <h2 class="font-display text-[clamp(3rem,8vw,6.5rem)] font-black leading-none tracking-tight">
+          现场<span class="text-stroke-neon">演示</span>
+        </h2>
+      </div>
+      <p class="hidden max-w-xs text-sm leading-relaxed text-dim md:block">
+        真实运行画面 —— 抓取、组装、外出演示。
+      </p>
+    </div>
+
+    <div class="grid gap-6 lg:grid-cols-3">
+      <div class="group relative overflow-hidden border border-line bg-card">
+        <video
+          src="/videos/12kg-grab.mp4"
+          muted
+          loop
+          playsinline
+          preload="none"
+          class="aspect-video w-full object-cover"
+          onmouseover="this.play()"
+          onmouseout="this.pause()"
+        />
+        <div class="flex items-center justify-between border-t border-line px-6 py-4">
+          <span class="font-display font-bold text-ivory">12kg 抓取演示</span>
+          <span class="text-xs uppercase tracking-[0.25em] text-neon">LIVE</span>
+        </div>
+      </div>
+
+      <div class="group relative overflow-hidden border border-line bg-card">
+        <video
+          src="/videos/robot-demo.mp4"
+          muted
+          loop
+          playsinline
+          preload="none"
+          class="aspect-video w-full object-cover"
+          onmouseover="this.play()"
+          onmouseout="this.pause()"
+        />
+        <div class="flex items-center justify-between border-t border-line px-6 py-4">
+          <span class="font-display font-bold text-ivory">运动控制演示</span>
+          <span class="text-xs uppercase tracking-[0.25em] text-neon">LIVE</span>
+        </div>
+      </div>
+
+      <div class="group relative overflow-hidden border border-line bg-card lg:col-span-2 lg:row-span-2 lg:flex lg:flex-col lg:justify-center">
+        <video
+          src="/videos/outdoor-demo.mp4"
+          muted
+          loop
+          playsinline
+          preload="none"
+          class="aspect-video w-full object-cover"
+          onmouseover="this.play()"
+          onmouseout="this.pause()"
+        />
+        <div class="flex items-center justify-between border-t border-line px-6 py-4">
+          <span class="font-display font-bold text-ivory">外出实地演示</span>
+          <span class="text-xs uppercase tracking-[0.25em] text-neon">FIELD</span>
+        </div>
+      </div>
+
+      <div class="group relative overflow-hidden border border-line bg-card">
+        <video
+          src="/videos/assembly.mp4"
+          muted
+          loop
+          playsinline
+          preload="none"
+          class="aspect-video w-full object-cover"
+          onmouseover="this.play()"
+          onmouseout="this.pause()"
+        />
+        <div class="flex items-center justify-between border-t border-line px-6 py-4">
+          <span class="font-display font-bold text-ivory">组装过程</span>
+          <span class="text-xs uppercase tracking-[0.25em] text-neon">BUILD</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CONTACT ============ -->
+  <section id="contact" class="reveal relative overflow-hidden border-t border-line py-32">
+    <div class="hero-grid-bg absolute inset-0 opacity-60" />
+    <div class="relative z-10 mx-auto max-w-5xl px-6 text-center">
+      <p class="mb-6 text-sm uppercase tracking-[0.35em] text-neon">/ 04 联系</p>
+      <h2 class="font-display text-[clamp(3rem,10vw,8rem)] font-black leading-[0.95] tracking-tight">
+        想造一台
+        <span class="block text-stroke-neon">机器人？</span>
+      </h2>
+      <p class="mx-auto mt-8 max-w-lg leading-relaxed text-dim">
+        定制协作臂、SCARA、双臂、机器狗，或者任何会动的机器 —— 加微信聊方案，电话随时打。
+      </p>
+
+      <div class="mt-12 flex flex-col items-center justify-center gap-6 sm:flex-row">
+        <a
+          href={`tel:${PHONE}`}
+          class="border border-neon bg-neon px-10 py-5 font-display text-xl font-black text-void transition-all hover:bg-transparent hover:text-neon"
+        >
+          {PHONE}
+        </a>
+        <div class="flex items-center gap-6">
+          <img
+            src="/wechat-qr.jpg"
+            alt="微信二维码"
+            width={168}
+            height={168}
+            loading="lazy"
+            class="border-2 border-neon bg-white p-2"
+          />
+          <div class="text-left text-sm leading-relaxed text-dim">
+            <span class="text-neon">扫一扫</span>
+            <br />加微信聊方案
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer class="border-t-2 border-neon">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 py-10 sm:flex-row">
+      <div>
+        <span class="font-display text-lg font-bold text-ivory">
+          阿威<span class="text-neon">机器人</span>
+        </span>
+        <p class="mt-1 text-xs text-dim">© {new Date().getFullYear()} AWEI ROBOT · All rights reserved</p>
+      </div>
+      <div class="flex items-center gap-6 text-sm text-dim">
+        <a href={`tel:${PHONE}`} class="transition-colors hover:text-neon">电话</a>
+        <a href="#contact" class="transition-colors hover:text-neon">微信</a>
+        <a href="https://github.com" target="_blank" rel="noreferrer" class="transition-colors hover:text-neon">GitHub</a>
+        <a href="https://bilibili.com" target="_blank" rel="noreferrer" class="transition-colors hover:text-neon">B站</a>
+      </div>
+    </div>
+  </footer>
+</Layout>

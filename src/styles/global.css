@@ -1,0 +1,133 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #06070b;
+  --color-abyss: #0d0f14;
+  --color-card: #12151d;
+  --color-line: #1f2230;
+  --color-line-soft: #262a3a;
+  --color-neon: #c7f23d;
+  --color-electric: #3e8cff;
+  --color-ivory: #e8e9ed;
+  --color-dim: #8a8a82;
+
+  --font-display: "Smiley Sans", "Noto Sans SC", sans-serif;
+  --font-body: "Space Grotesk", "Noto Sans SC", sans-serif;
+
+  --animate-marquee: marquee 22s linear infinite;
+  --animate-pulse-slow: pulseSlow 3s ease-in-out infinite;
+  --animate-scan: scan 6s linear infinite;
+  --animate-blink: blink 1.1s steps(2, start) infinite;
+}
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@keyframes pulseSlow {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+
+@keyframes scan {
+  from { background-position: 0 0; }
+  to { background-position: 0 200%; }
+}
+
+@keyframes blink {
+  50% { opacity: 0; }
+}
+
+@font-face {
+  font-family: "Smiley Sans";
+  src: url("/fonts/smiley-sans.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--color-void);
+  color: var(--color-ivory);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--color-neon);
+  color: var(--color-void);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-line);
+  border: 2px solid var(--color-void);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon);
+}
+
+.text-stroke-neon {
+  -webkit-text-stroke: 1px var(--color-neon);
+  color: transparent;
+}
+
+.text-stroke-dim {
+  -webkit-text-stroke: 1px var(--color-line-soft);
+  color: transparent;
+}
+
+.hero-grid-bg {
+  background-image:
+    linear-gradient(var(--color-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-line) 1px, transparent 1px);
+  background-size: 72px 72px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 40%, black 20%, transparent 75%);
+}
+
+.glass-border {
+  border: 1px solid var(--color-line);
+  background: linear-gradient(180deg, rgba(18, 21, 29, 0.85), rgba(10, 12, 17, 0.9));
+}
+
+.scanline {
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 3px,
+    rgba(199, 242, 61, 0.03) 3px,
+    rgba(199, 242, 61, 0.03) 4px
+  );
+}
+
+.crt-vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 55%, rgba(6, 7, 11, 0.55) 100%);
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}

@@ -1,0 +1,16 @@
+---
+import { clients } from '../data/site';
+---
+
+<div class="relative overflow-hidden border-y border-line bg-void py-5">
+  <div class="flex w-max animate-marquee gap-16 whitespace-nowrap">
+    {[...clients, ...clients].map((c, i) => (
+      <span key={i} class="flex items-center gap-16">
+        <span class="font-display text-2xl font-bold tracking-tight text-ivory/90 hover:text-neon transition-colors">
+          {c}
+        </span>
+        <span class="text-neon text-xl">◆</span>
+      </span>
+    ))}
+  </div>
+</div>
