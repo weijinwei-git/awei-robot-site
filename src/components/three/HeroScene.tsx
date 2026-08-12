@@ -1,6 +1,8 @@
-import { useMemo, useRef, Suspense } from 'react';
-import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { useLayoutEffect, useMemo, useRef, Suspense } from 'react';
+import { Canvas, useFrame, useThree, useLoader } from '@react-three/fiber';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 const NEON = new THREE.Color('#c7f23d');
 const ELECTRIC = new THREE.Color('#3e8cff');
@@ -116,104 +118,94 @@ function ParticleField({ count = 22000 }: { count?: number }) {
   );
 }
 
-/* ---------------- 程序化抽象机械核心 ---------------- */
+/* ---------------- 真实 CR-12E 模型 ---------------- */
 
-function MechanicalCore() {
+const MODEL_URL = import.meta.env.BASE_URL + 'models/cr-12e.glb';
+const TARGET_HEIGHT = 3.2;
+
+function RobotModel() {
   const groupRef = useRef<THREE.Group>(null);
-  const armRef = useRef<THREE.Group>(null);
   const { pointer } = useThree();
 
+  const { scene } = useLoader(GLTFLoader, MODEL_URL, (loader) => {
+    const draco = new DRACOLoader();
+    draco.setDecoderPath(import.meta.env.BASE_URL + 'lib/draco/');
+    loader.setDRACOLoader(draco);
+  });
+
+  useLayoutEffect(() => {
+    scene.traverse((o) => {
+      if ((o as THREE.Mesh).isMesh) {
+        (o as THREE.Mesh).material = new THREE.MeshStandardMaterial({
+          color: '#9aa0aa',
+          metalness: 0.85,
+          roughness: 0.32,
+        });
+        o.castShadow = true;
+      }
+    });
+
+    const box = new THREE.Box3().setFromObject(scene);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const s = TARGET_HEIGHT / size.y;
+
+    scene.position.set(-center.x * s, -center.y * s, -center.z * s);
+    scene.scale.setScalar(s);
+  }, [scene]);
+
   useFrame((state, delta) => {
-    const t = state.clock.elapsedTime;
     if (groupRef.current) {
-      groupRef.current.rotation.y += delta * 0.22;
+      groupRef.current.rotation.y += delta * 0.16;
       groupRef.current.position.x = THREE.MathUtils.lerp(
         groupRef.current.position.x,
-        pointer.x * 0.5,
+        pointer.x * 0.55,
         0.03
       );
       groupRef.current.position.y = THREE.MathUtils.lerp(
         groupRef.current.position.y,
-        pointer.y * 0.35,
+        pointer.y * 0.35 + 0.1,
         0.03
       );
     }
-    if (armRef.current) {
-      armRef.current.rotation.z = Math.sin(t * 0.6) * 0.55;
-      armRef.current.rotation.x = Math.cos(t * 0.45) * 0.35;
-    }
   });
 
-  const metalMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#2a2f3c', metalness: 0.92, roughness: 0.28 }),
-    []
+  return (
+    <group ref={groupRef} position={[0, 0.1, 0]}>
+      <primitive object={scene} />
+    </group>
   );
-  const neonMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#c7f23d', metalness: 0.35, roughness: 0.25, emissive: new THREE.Color('#c7f23d'), emissiveIntensity: 0.55 }),
-    []
-  );
-  const darkMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#14161d', metalness: 0.85, roughness: 0.45 }),
-    []
-  );
+}
+/* ---------------- 霓虹光环 ---------------- */
 
+function Rings() {
   const ringMat = useMemo(
     () =>
       new THREE.MeshBasicMaterial({
         color: '#c7f23d',
         transparent: true,
-        opacity: 0.55,
+        opacity: 0.5,
         blending: THREE.AdditiveBlending,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
     []
   );
+  const groupRef = useRef<THREE.Group>(null);
+
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.z += delta * 0.18;
+    }
+  });
 
   return (
     <group ref={groupRef}>
-      {/* 底座 */}
-      <mesh position={[0, -1.1, 0]} material={darkMat}>
-        <cylinderGeometry args={[0.95, 1.25, 0.45, 6]} />
+      <mesh material={ringMat} rotation={[Math.PI / 2.2, 0, 0]}>
+        <torusGeometry args={[2.15, 0.014, 12, 96]} />
       </mesh>
-      <mesh position={[0, -0.85, 0]} material={metalMat}>
-        <cylinderGeometry args={[0.62, 0.62, 0.28, 6]} />
-      </mesh>
-      {/* 肩关节 */}
-      <mesh position={[0, -0.55, 0]} material={neonMat}>
-        <sphereGeometry args={[0.34, 24, 24]} />
-      </mesh>
-      {/* 大臂 */}
-      <group ref={armRef} position={[0, -0.2, 0]}>
-        <mesh position={[0, 0.75, 0]} material={metalMat}>
-          <cylinderGeometry args={[0.17, 0.22, 1.5, 8]} />
-        </mesh>
-        {/* 肘关节 */}
-        <mesh position={[0, 1.55, 0]} material={neonMat}>
-          <sphereGeometry args={[0.24, 24, 24]} />
-        </mesh>
-        {/* 小臂 */}
-        <mesh position={[0, 2.15, 0]} rotation={[0, 0, 0.35]} material={metalMat}>
-          <cylinderGeometry args={[0.13, 0.17, 1.2, 8]} />
-        </mesh>
-        {/* 腕部末端 */}
-        <mesh position={[0.42, 2.68, 0]} material={neonMat}>
-          <boxGeometry args={[0.3, 0.18, 0.18]} />
-        </mesh>
-        {/* 抓手 */}
-        <mesh position={[0.72, 2.68, 0]} material={metalMat}>
-          <boxGeometry args={[0.4, 0.08, 0.14]} />
-        </mesh>
-      </group>
-      {/* 光环 */}
-      <mesh material={ringMat} rotation={[Math.PI / 2.15, 0, 0]}>
-        <torusGeometry args={[1.85, 0.012, 12, 96]} />
-      </mesh>
-      <mesh material={ringMat} rotation={[Math.PI / 1.8, 0.4, 0.2]}>
-        <torusGeometry args={[2.35, 0.008, 12, 96]} />
-      </mesh>
-      <mesh material={ringMat} rotation={[Math.PI / 1.6, -0.3, -0.35]}>
-        <torusGeometry args={[1.55, 0.01, 12, 96]} />
+      <mesh material={ringMat} rotation={[Math.PI / 1.85, 0.4, 0.2]}>
+        <torusGeometry args={[2.7, 0.01, 12, 96]} />
       </mesh>
     </group>
   );
@@ -245,7 +237,8 @@ export default function HeroScene() {
       <Suspense fallback={null}>
         <Lights />
         <ParticleField />
-        <MechanicalCore />
+        <RobotModel />
+        <Rings />
       </Suspense>
     </Canvas>
   );
