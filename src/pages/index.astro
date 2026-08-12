@@ -126,7 +126,11 @@ const base = import.meta.env.BASE_URL;
 
       <div class="timeline-track">
         {products.map((p, i) => (
-          <article class="t-card group">
+          <article
+            class="t-card group cursor-pointer"
+            data-p={JSON.stringify(p)}
+            onclick="window.dispatchEvent(new CustomEvent('aw:open-product',{detail:JSON.parse(this.dataset.p)}))"
+          >
             <div class="relative overflow-hidden">
               <img
                 src={base + p.image.slice(1)}
@@ -148,6 +152,16 @@ const base = import.meta.env.BASE_URL;
               </div>
               <p class="mt-1 text-xs font-bold uppercase tracking-widest text-neon">{p.type}</p>
               <p class="mt-3 text-sm leading-relaxed text-dim">{p.desc}</p>
+              <div class="mt-4 flex flex-wrap gap-2">
+                {p.params.map((param) => (
+                  <span key={param} class="border border-line px-2.5 py-1 text-xs text-dim">
+                    {param}
+                  </span>
+                ))}
+              </div>
+              <p class="mt-4 text-xs uppercase tracking-[0.3em] text-neon/70 opacity-0 transition-opacity group-hover:opacity-100">
+                查看详情 →
+              </p>
             </div>
             <div class="t-step" />
           </article>
@@ -187,10 +201,12 @@ const base = import.meta.env.BASE_URL;
       {products.map((p, i) => (
         <article
           class:list={[
-            'group relative overflow-hidden border border-line bg-card transition-colors hover:border-neon',
+            'group relative cursor-pointer overflow-hidden border border-line bg-card transition-colors hover:border-neon',
             i === 0 && 'lg:col-span-2 lg:row-span-2',
             i === 3 && 'lg:col-span-2',
           ]}
+          data-p={JSON.stringify(p)}
+          onclick="window.dispatchEvent(new CustomEvent('aw:open-product',{detail:JSON.parse(this.dataset.p)}))"
         >
           <div class:list={[
             'work-media relative overflow-hidden',
@@ -225,6 +241,9 @@ const base = import.meta.env.BASE_URL;
                 </span>
               ))}
             </div>
+            <p class="mt-4 text-xs uppercase tracking-[0.3em] text-neon/70 opacity-0 transition-opacity group-hover:opacity-100">
+              查看详情 →
+            </p>
           </div>
         </article>
       ))}
@@ -403,7 +422,7 @@ const base = import.meta.env.BASE_URL;
         </a>
         <div class="flex items-center gap-6">
           <img
-            src={base + 'wechat-qr.jpg'}
+            src={base + 'wechat-qr.png'}
             alt="微信二维码"
             width={168}
             height={168}

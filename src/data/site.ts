@@ -7,6 +7,7 @@ export interface Product {
   image: string;
   desc: string;
   params: string[];
+  video?: string;
   accent: 'neon' | 'electric' | 'ivory' | 'dim';
 }
 
@@ -20,6 +21,7 @@ export const products: Product[] = [
     image: '/products/cr-0709.jpg',
     desc: '银灰金属质感六轴协作臂，固定于工作台面，轻量精密，适配装配、上下料、检测等场景。',
     params: ['负载 7kg', '六轴串联', '0.02mm 重复定位', '工作半径 920mm'],
+    video: 'videos/robot-demo.mp4',
     accent: 'neon',
   },
   {
@@ -31,6 +33,7 @@ export const products: Product[] = [
     image: '/products/cr-12e.jpg',
     desc: '12kg 级多关节协作臂，搭配小型控制柜，面向轻负载精密作业与柔性产线。',
     params: ['负载 12kg', '轻量化设计', '紧凑控制柜', '精密作业'],
+    video: 'videos/12kg-grab.mp4',
     accent: 'electric',
   },
   {
@@ -53,6 +56,7 @@ export const products: Product[] = [
     image: '/products/twr750-5.jpg',
     desc: '对称安装的双臂结构，双臂协同作业，面向教学科研与仿人操作研究。',
     params: ['双臂协同', '模块化关节', '科研教学', '仿人操作'],
+    video: 'videos/assembly.mp4',
     accent: 'dim',
   },
   {
@@ -64,6 +68,7 @@ export const products: Product[] = [
     image: '/products/tw-12.jpg',
     desc: '工业级轻量化四足骨架，铝合金机身，腿部关节清晰可见，面向巡检与运动控制研究。',
     params: ['四足结构', '铝合金骨架', '多自由度', '运动控制'],
+    video: 'videos/outdoor-demo.mp4',
     accent: 'neon',
   },
 ];

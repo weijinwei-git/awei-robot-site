@@ -6,16 +6,11 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
 const PET_URL = import.meta.env.BASE_URL + 'models/bpx.glb';
 const DOG_HEIGHT = 764; // 模型原始高度（毫米，STP 单位制）
+// 驻留点：Hero 首屏右侧（世界坐标，z=0 平面）
+const HOME_X = 3.1;
+const HOME_Y = -1.35;
 
-// 角度插值（带环绕处理）
-function lerpAngle(a: number, b: number, t: number): number {
-  let d = (b - a) % (Math.PI * 2);
-  if (d > Math.PI) d -= Math.PI * 2;
-  if (d < -Math.PI) d += Math.PI * 2;
-  return a + d * t;
-}
-
-type Mood = 'chase' | 'idle' | 'jump' | 'roll' | 'beg';
+type Mood = 'idle' | 'jump' | 'roll' | 'beg';
 
 /* ---------------- 机械狗实体 ---------------- */
 
@@ -34,32 +29,22 @@ function Pet() {
     mood: Mood;
     moodTimer: number;
     pos: THREE.Vector3;
-    heading: number;
-    speed: number;
     walkPhase: number;
-    idleT: number;
     jumpT: number;
     jumpStartY: number;
     rollT: number;
     begT: number;
-    mouseWorld: THREE.Vector3;
     facing: number;
-    moveTilt: number;
   }>({
     mood: 'idle',
-    moodTimer: 0,
-    pos: new THREE.Vector3(0, 0, 0),
-    heading: 0,
-    speed: 2.4,
+    moodTimer: 5 + Math.random() * 6,
+    pos: new THREE.Vector3(HOME_X, HOME_Y, 0),
     walkPhase: 0,
-    idleT: 0,
     jumpT: -1,
     jumpStartY: 0,
     rollT: -1,
     begT: -1,
-    mouseWorld: new THREE.Vector3(99, 99, 0),
-    facing: 0,
-    moveTilt: 0,
+    facing: 0.6,
   });
 
   // 材质：统一银灰金属（模型部件太多无法细分）
@@ -77,28 +62,12 @@ function Pet() {
 
   // 尺寸与边界
   const dims = useMemo(() => {
-    const s = (viewport.height * 0.26) / DOG_HEIGHT;
+    const s = (viewport.height * 0.156) / DOG_HEIGHT;
     return {
       scale: s,
       groundRadius: 0.8 * s,
-      bounds: {
-        x: viewport.width * 0.38,
-        yMin: -viewport.height * 0.36,
-        yMax: viewport.height * 0.3,
-      },
     };
   }, [viewport]);
-
-  // 视口坐标 → 世界坐标（z=0 平面）
-  const screenToWorld = (clientX: number, clientY: number) => {
-    const nx = (clientX / window.innerWidth) * 2 - 1;
-    const ny = -(clientY / window.innerHeight) * 2 + 1;
-    return new THREE.Vector3(
-      (nx * viewport.width) / 2,
-      (ny * viewport.height) / 2,
-      0
-    );
-  };
 
   // 撒娇动作随机三选一
   const playTrick = () => {
@@ -118,21 +87,24 @@ function Pet() {
   };
 
   useEffect(() => {
-    const onMove = (e: MouseEvent) => {
-      state.current.mouseWorld.copy(screenToWorld(e.clientX, e.clientY));
-    };
     const onDown = (e: MouseEvent) => {
-      const m = screenToWorld(e.clientX, e.clientY);
+      // 计算点击世界坐标（Hero 视角：相机 [0,0,9] fov50，z=0 平面）
+      const nx = (e.clientX / window.innerWidth) * 2 - 1;
+      const ny = -(e.clientY / window.innerHeight) * 2 + 1;
+      const m = new THREE.Vector3(
+        (nx * viewport.width) / 2,
+        (ny * viewport.height) / 2,
+        0
+      );
       const s = state.current;
-      if (s.pos.distanceTo(m) < dims.scale * 1.8) {
+      if (s.pos.distanceTo(m) < dims.scale * 2.2) {
         playTrick();
+        s.moodTimer = 4 + Math.random() * 5;
       }
     };
 
-    window.addEventListener('mousemove', onMove);
     window.addEventListener('pointerdown', onDown);
     return () => {
-      window.removeEventListener('mousemove', onMove);
       window.removeEventListener('pointerdown', onDown);
     };
   }, [dims]);
@@ -142,42 +114,22 @@ function Pet() {
     if (!g) return;
     const s = state.current;
     const dt = Math.min(delta, 0.05);
-    const acting = s.mood === 'jump' || s.mood === 'roll' || s.mood === 'beg';
 
-    // ---------- 跟随鼠标（含 z 轴前后感） ----------
-    if (!acting) {
-      const m = s.mouseWorld;
-      // 鼠标靠上 → 狗走近相机（z 负，变大）；靠下 → 走远（z 正，变小）
-      const zTarget = THREE.MathUtils.clamp(
-        (m.y / (viewport.height / 2)) * 1.5,
-        -1.8,
-        1.2
-      );
-      s.pos.z += (zTarget - s.pos.z) * Math.min(1, dt * 2.6);
-
-      const dx = m.x - s.pos.x;
-      const dy = m.y - s.pos.y;
-      const dist = Math.hypot(dx, dy);
-      const stopR = dims.scale * 0.5;
-      if (dist > stopR) {
-        s.mood = 'chase';
-        s.pos.x += (dx / dist) * s.speed * dt;
-        s.pos.y += (dy / dist) * s.speed * dt;
-        s.walkPhase += dt * 12;
-        s.facing = lerpAngle(s.facing, Math.atan2(dx, dy), 0.14);
-      } else if (s.mood !== 'idle') {
-        s.mood = 'idle';
-        s.idleT = 0;
-      }
+    // 随机触发撒娇动作
+    s.moodTimer -= dt;
+    if (s.moodTimer <= 0) {
+      playTrick();
+      s.moodTimer = 7 + Math.random() * 9;
     }
 
     // ---------- 状态机动作 ----------
     if (s.mood === 'idle') {
-      s.idleT += dt;
+      // 原地踏步
+      s.walkPhase += dt * 13;
     } else if (s.mood === 'jump') {
       s.jumpT += dt;
       if (s.jumpT > 1.4) {
-        s.mood = 'chase';
+        s.mood = 'idle';
         s.jumpT = -1;
       } else {
         const seg = s.jumpT % 0.7;
@@ -189,50 +141,38 @@ function Pet() {
     } else if (s.mood === 'roll') {
       s.rollT += dt;
       if (s.rollT > 1.2) {
-        s.mood = 'chase';
+        s.mood = 'idle';
         s.rollT = -1;
       }
     } else if (s.mood === 'beg') {
       s.begT += dt;
       if (s.begT > 2.2) {
-        s.mood = 'chase';
+        s.mood = 'idle';
         s.begT = -1;
       }
     }
-
-    // 边界约束
-    const b = dims.bounds;
-    s.pos.x = THREE.MathUtils.clamp(s.pos.x, -b.x, b.x);
-    s.pos.y = THREE.MathUtils.clamp(s.pos.y, b.yMin, b.yMax);
-    s.pos.z = THREE.MathUtils.clamp(s.pos.z, -1.8, 1.2);
 
     // ---------- 应用到模型 ----------
     g.position.copy(s.pos);
     g.rotation.y = s.facing;
     g.scale.setScalar(dims.scale);
 
-    if (s.mood === 'chase') {
-      // 奔跑：起伏 + 侧倾 + 前倾（立体感）
-      const bob = Math.sin(s.walkPhase) * 0.05 * dims.scale * 3;
-      const lean = Math.sin(s.walkPhase * 0.5) * 0.09;
-      const speedLean = Math.min(s.speed * 0.035, 0.14);
+    if (s.mood === 'idle') {
+      // 踏步：明显上下起伏 + 点头 + 侧倾（制造"脚在动"的感觉）
+      const step = Math.sin(s.walkPhase);
+      const bob = step * 0.035 * dims.scale * 3;
       g.position.y += bob;
-      g.rotation.z = lean;
-      g.rotation.x = speedLean + Math.sin(s.walkPhase) * 0.05;
-      g.scale.y = dims.scale * (1 - Math.abs(Math.sin(s.walkPhase * 0.5)) * 0.04);
-    } else if (s.mood === 'idle') {
-      const breath = Math.sin(s.idleT * 2.4) * 0.015;
-      g.position.y += breath;
-      g.rotation.z = Math.sin(s.idleT * 1.4) * 0.05;
-      // 摇尾
-      g.rotation.x = Math.sin(s.idleT * 9) * 0.06;
+      g.rotation.z = Math.sin(s.walkPhase * 0.5) * 0.07;
+      g.rotation.x = Math.sin(s.walkPhase) * 0.09;
+      g.scale.y = dims.scale * (1 - Math.abs(step) * 0.05);
+      // 微前后位移模拟踏步落脚
+      g.position.z = Math.sin(s.walkPhase * 0.5) * 0.06 * dims.scale * 3;
     } else if (s.mood === 'jump') {
       g.rotation.x = Math.sin(s.jumpT * 6) * 0.14;
       g.position.y += Math.abs(Math.sin(s.jumpT * 6)) * 0.05;
     } else if (s.mood === 'roll') {
       g.rotation.z = (s.rollT / 1.2) * Math.PI * 2;
       g.position.y += Math.abs(Math.sin((s.rollT / 1.2) * Math.PI)) * 0.4;
-      s.pos.x += dt * 0.6;
     } else if (s.mood === 'beg') {
       // 坐姿讨食：压扁 + 前倾 + 快速点头 + 疯狂摇尾
       const t = s.begT;
@@ -285,7 +225,7 @@ export default function FloatingPet() {
   return (
     <Canvas
       camera={{ position: [0, 0, 9], fov: 50 }}
-      dpr={[1, 1.75]}
+      dpr={[1, 1.4]}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
       style={{
         position: 'fixed',
