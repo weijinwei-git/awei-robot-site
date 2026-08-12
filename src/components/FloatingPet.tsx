@@ -7,7 +7,7 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 const PET_URL = import.meta.env.BASE_URL + 'models/bpx.glb';
 const DOG_HEIGHT = 764; // 模型原始高度（毫米，STP 单位制）
 // 驻留点：Hero 首屏右侧（世界坐标，z=0 平面）
-const HOME_X = 3.1;
+const HOME_X = 2.2;
 const HOME_Y = -1.35;
 
 type Mood = 'idle' | 'jump' | 'roll' | 'beg';
@@ -62,7 +62,7 @@ function Pet() {
 
   // 尺寸与边界
   const dims = useMemo(() => {
-    const s = (viewport.height * 0.156) / DOG_HEIGHT;
+    const s = (viewport.height * 0.26) / DOG_HEIGHT;
     return {
       scale: s,
       groundRadius: 0.8 * s,
