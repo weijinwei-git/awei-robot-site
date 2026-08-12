@@ -7,6 +7,7 @@ import Marquee from '../components/Marquee.astro';
 import { products, capabilities, stats } from '../data/site';
 
 const PHONE = '15976196269';
+const base = import.meta.env.BASE_URL;
 ---
 
 <Layout>
@@ -128,7 +129,7 @@ const PHONE = '15976196269';
           <article class="t-card group">
             <div class="relative overflow-hidden">
               <img
-                src={p.image}
+                src={base + p.image.slice(1)}
                 alt={p.name}
                 loading="lazy"
                 class="aspect-[4/3] h-full w-full object-cover opacity-85 grayscale-[25%] transition-all duration-700 group-hover:opacity-100 group-hover:grayscale-0 group-hover:scale-105"
@@ -312,7 +313,7 @@ const PHONE = '15976196269';
     <div class="grid gap-6 lg:grid-cols-3">
       <div class="group relative overflow-hidden border border-line bg-card">
         <video
-          src="/videos/12kg-grab.mp4"
+          src={base + 'videos/12kg-grab.mp4'}
           muted
           loop
           playsinline
@@ -329,7 +330,7 @@ const PHONE = '15976196269';
 
       <div class="group relative overflow-hidden border border-line bg-card">
         <video
-          src="/videos/robot-demo.mp4"
+          src={base + 'videos/robot-demo.mp4'}
           muted
           loop
           playsinline
@@ -346,7 +347,7 @@ const PHONE = '15976196269';
 
       <div class="group relative overflow-hidden border border-line bg-card lg:col-span-2 lg:row-span-2 lg:flex lg:flex-col lg:justify-center">
         <video
-          src="/videos/outdoor-demo.mp4"
+          src={base + 'videos/outdoor-demo.mp4'}
           muted
           loop
           playsinline
@@ -363,7 +364,7 @@ const PHONE = '15976196269';
 
       <div class="group relative overflow-hidden border border-line bg-card">
         <video
-          src="/videos/assembly.mp4"
+          src={base + 'videos/assembly.mp4'}
           muted
           loop
           playsinline
@@ -402,7 +403,7 @@ const PHONE = '15976196269';
         </a>
         <div class="flex items-center gap-6">
           <img
-            src="/wechat-qr.jpg"
+            src={base + 'wechat-qr.jpg'}
             alt="微信二维码"
             width={168}
             height={168}
