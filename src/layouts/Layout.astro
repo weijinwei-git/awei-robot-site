@@ -6,7 +6,6 @@ import '@fontsource/noto-sans-sc/400.css';
 import '@fontsource/noto-sans-sc/700.css';
 import '@fontsource/noto-sans-sc/900.css';
 import ProductModal from '../components/ProductModal';
-import PetDogLayer from '../components/three/PetDogLayer';
 import '../styles/global.css';
 
 interface Props {
@@ -32,7 +31,6 @@ const { title = '阿威机器人 · 机器人开发者', description = '机器�
   </head>
   <body class="bg-void text-ivory">
     <slot />
-    <PetDogLayer client:load />
     <ProductModal client:load />
   </body>
 </html>

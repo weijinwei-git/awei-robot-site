@@ -237,7 +237,6 @@ function PetDog() {
 /* ---------------- 覆盖层容器 ---------------- */
 
 export default function PetDogLayer() {
-  const [visible, setVisible] = useState(false);
   const [webgl, setWebgl] = useState(false);
 
   useEffect(() => {
@@ -251,18 +250,7 @@ export default function PetDogLayer() {
     }
   }, []);
 
-  useEffect(() => {
-    const hero = document.getElementById('top');
-    if (!hero) return;
-    const io = new IntersectionObserver(
-      ([entry]) => setVisible(entry.isIntersecting),
-      { threshold: 0.05 }
-    );
-    io.observe(hero);
-    return () => io.disconnect();
-  }, []);
-
-  if (!webgl || !visible) return null;
+  if (!webgl) return null;
 
   return (
     <Canvas
@@ -270,10 +258,10 @@ export default function PetDogLayer() {
       dpr={[1, 1.75]}
       gl={{ antialias: true, alpha: true, powerPreference: 'high-performance', preserveDrawingBuffer: true }}
       style={{
-        position: 'fixed',
+        position: 'absolute',
         inset: 0,
         pointerEvents: 'none',
-        zIndex: 8500,
+        zIndex: 20,
       }}
     >
       <ambientLight intensity={0.5} />

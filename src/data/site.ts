@@ -29,7 +29,7 @@ export const products: Product[] = [
     ],
     price: 19999,
     taxNote: '未税',
-    video: 'videos/robot-demo.mp4',
+    video: 'videos/cr-0709-show.mp4',
     accent: 'neon',
   },
   {
@@ -47,7 +47,7 @@ export const products: Product[] = [
     ],
     price: 26999,
     taxNote: '未税',
-    video: 'videos/12kg-grab.mp4',
+    video: 'videos/cr-12e-show.mp4',
     accent: 'electric',
   },
   {
@@ -55,7 +55,7 @@ export const products: Product[] = [
     name: '406 SCARA',
     en: 'SCARA 4-Axis',
     type: 'SCARA 四轴机械臂',
-    tag: '0.01MM',
+    tag: '5KG',
     image: '/products/scara-406.jpg',
     desc: '白色四轴 SCARA，紧凑轻量，关节灵活，适合精密装配、点胶、贴装等高速作业。',
     specs: [
@@ -72,7 +72,7 @@ export const products: Product[] = [
     name: 'TWR750-5',
     en: 'Dual-Arm Robot',
     type: '双臂机器人',
-    tag: 'DUAL',
+    tag: '4/5KG',
     image: '/products/twr750-5.jpg',
     desc: '对称安装的双臂结构，双臂协同作业，面向教学科研与仿人操作研究。',
     specs: [
@@ -82,7 +82,7 @@ export const products: Product[] = [
     ],
     price: 55000,
     taxNote: '未税',
-    video: 'videos/assembly.mp4',
+    video: 'videos/twr750-5-show.mp4',
     accent: 'dim',
   },
   {
@@ -90,7 +90,7 @@ export const products: Product[] = [
     name: 'TW-12',
     en: 'Quadruped',
     type: '四足机器狗',
-    tag: 'LEG',
+    tag: '8KG',
     image: '/products/tw-12.jpg',
     desc: '工业级轻量化四足骨架，铝合金机身，腿部关节清晰可见，面向巡检与运动控制研究。',
     specs: [
@@ -99,7 +99,7 @@ export const products: Product[] = [
     ],
     price: 16999,
     taxNote: '未税',
-    video: 'videos/outdoor-demo.mp4',
+    video: 'videos/tw-12-show.mp4',
     accent: 'neon',
   },
 ];
