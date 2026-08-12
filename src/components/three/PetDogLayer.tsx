@@ -60,7 +60,7 @@ function PetBody({ scene }: { scene: THREE.Scene }) {
   }, [scene]);
 
   const dims = useMemo(() => {
-    const s = (viewport.height * 0.18) / PET_HEIGHT;
+    const s = (viewport.height * 0.281) / PET_HEIGHT;
     return { scale: s, groundRadius: 0.8 * s };
   }, [viewport]);
 
