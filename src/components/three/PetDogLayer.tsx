@@ -4,14 +4,15 @@ import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js';
 
-// 大资源走 jsDelivr GitHub CDN（全球加速 + 长缓存）
-const CDN_BASE = 'https://cdn.jsdelivr.net/gh/weijinwei-git/awei-robot-site@main/';
-const PET_URL = CDN_BASE + 'public/models/bpx.glb';
+// 大资源：本地开发走本地路径，生产走 jsDelivr GitHub CDN（全球加速 + 长缓存）
+const PET_URL = import.meta.env.DEV
+  ? import.meta.env.BASE_URL + 'models/bpx.glb'
+  : 'https://cdn.jsdelivr.net/gh/weijinwei-git/awei-robot-site@main/public/models/bpx.glb';
 const PET_HEIGHT = 764; // 模型原始高度（毫米，STP 单位制）
 
-// 屏幕归一化位置（左上区域，约屏幕 14% 宽 / 17% 高处为狗中心）
-const POS_NX = -0.72;
-const POS_NY = 0.66;
+// 屏幕归一化位置：三分构图法左上黄金点（横 1/3、竖 1/3，"阿威"标题右侧、屏幕中心轴左侧）
+const POS_NX = -0.30;
+const POS_NY = 0.333;
 
 const dracoLoader = new DRACOLoader();
 dracoLoader.setDecoderPath(import.meta.env.BASE_URL + 'lib/draco/');
@@ -52,6 +53,10 @@ function PetBody({ scene }: { scene: THREE.Scene }) {
         });
       }
     });
+    // 模型自带偏移：把几何中心平移到原点，让 g.position 精确控制屏幕位置
+    const box = new THREE.Box3().setFromObject(scene);
+    const center = box.getCenter(new THREE.Vector3());
+    scene.position.sub(center);
   }, [scene]);
 
   const dims = useMemo(() => {

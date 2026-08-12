@@ -12,10 +12,6 @@ const DIM = new THREE.Color('#3a4152');
 const sharedDraco = new DRACOLoader();
 sharedDraco.setDecoderPath(import.meta.env.BASE_URL + 'lib/draco/');
 
-// 大资源走 jsDelivr GitHub CDN（全球加速 + 长缓存）
-const CDN_BASE = 'https://cdn.jsdelivr.net/gh/weijinwei-git/awei-robot-site@main/';
-
-
 /* ---------------- 粒子星云 ---------------- */
 
 function ParticleField({ count = 22000 }: { count?: number }) {
@@ -128,7 +124,9 @@ function ParticleField({ count = 22000 }: { count?: number }) {
 
 /* ---------------- 真实 CR-12E 模型 ---------------- */
 
-const MODEL_URL = CDN_BASE + 'public/models/cr-12e.glb';
+const MODEL_URL = import.meta.env.DEV
+  ? import.meta.env.BASE_URL + 'models/cr-12e.glb'
+  : 'https://cdn.jsdelivr.net/gh/weijinwei-git/awei-robot-site@main/public/models/cr-12e.glb';
 const TARGET_HEIGHT = 3.2;
 
 function RobotModel() {
