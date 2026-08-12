@@ -8,7 +8,9 @@ interface ModalProduct {
   tag: string;
   image: string;
   desc: string;
-  params: string[];
+  specs: { label: string; value: string }[];
+  price: number;
+  taxNote: string;
   video?: string;
 }
 
@@ -94,12 +96,24 @@ export default function ProductModal() {
           </div>
           <p className="mt-5 text-sm leading-relaxed text-dim">{product.desc}</p>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            {product.params.map((param) => (
-              <span key={param} className="border border-neon/40 bg-neon/5 px-3 py-1.5 text-xs font-bold text-neon">
-                {param}
-              </span>
+          <div className="mt-6 border border-line">
+            {product.specs.map((s, i) => (
+              <div
+                key={s.label}
+                className="grid grid-cols-2 border-line px-4 py-3 text-sm"
+                style={i > 0 ? { borderTopWidth: 1 } : undefined}
+              >
+                <span className="text-dim">{s.label}</span>
+                <span className="text-right font-bold text-ivory">{s.value}</span>
+              </div>
             ))}
+          </div>
+
+          <div className="price-glow mt-7 font-display text-5xl font-black tracking-tight text-neon">
+            ¥{product.price.toLocaleString()}
+            <span className="ml-2 align-middle text-sm font-normal tracking-normal text-dim">
+              {product.taxNote}
+            </span>
           </div>
 
           {product.video && (
@@ -111,7 +125,7 @@ export default function ProductModal() {
                 loop
                 playsinline
                 controls
-                preload="metadata"
+                preload="none"
                 className="aspect-video w-full border border-line bg-black object-cover"
               />
             </div>

@@ -83,6 +83,12 @@ body {
   color: transparent;
 }
 
+.price-glow {
+  text-shadow:
+    0 0 12px rgba(199, 242, 61, 0.55),
+    0 0 42px rgba(199, 242, 61, 0.25);
+}
+
 .text-stroke-dim {
   -webkit-text-stroke: 1px var(--color-line-soft);
   color: transparent;

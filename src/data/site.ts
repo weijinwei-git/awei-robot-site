@@ -6,7 +6,9 @@ export interface Product {
   tag: string;
   image: string;
   desc: string;
-  params: string[];
+  specs: { label: string; value: string }[];
+  price: number;
+  taxNote: string;
   video?: string;
   accent: 'neon' | 'electric' | 'ivory' | 'dim';
 }
@@ -20,7 +22,13 @@ export const products: Product[] = [
     tag: '7KG',
     image: '/products/cr-0709.jpg',
     desc: '银灰金属质感六轴协作臂，固定于工作台面，轻量精密，适配装配、上下料、检测等场景。',
-    params: ['负载 7kg', '六轴串联', '0.02mm 重复定位', '工作半径 920mm'],
+    specs: [
+      { label: '臂长', value: '780mm' },
+      { label: '负载', value: '7kg' },
+      { label: '精度', value: '±0.05mm' },
+    ],
+    price: 19999,
+    taxNote: '未税',
     video: 'videos/robot-demo.mp4',
     accent: 'neon',
   },
@@ -32,7 +40,13 @@ export const products: Product[] = [
     tag: '12KG',
     image: '/products/cr-12e.jpg',
     desc: '12kg 级多关节协作臂，搭配小型控制柜，面向轻负载精密作业与柔性产线。',
-    params: ['负载 12kg', '轻量化设计', '紧凑控制柜', '精密作业'],
+    specs: [
+      { label: '臂长', value: '1280mm' },
+      { label: '负载', value: '12kg' },
+      { label: '精度', value: '±0.1mm' },
+    ],
+    price: 26999,
+    taxNote: '未税',
     video: 'videos/12kg-grab.mp4',
     accent: 'electric',
   },
@@ -44,7 +58,13 @@ export const products: Product[] = [
     tag: '0.01MM',
     image: '/products/scara-406.jpg',
     desc: '白色四轴 SCARA，紧凑轻量，关节灵活，适合精密装配、点胶、贴装等高速作业。',
-    params: ['四轴结构', '高速点胶', '精密装配', '紧凑桌面级'],
+    specs: [
+      { label: '臂长', value: '600mm' },
+      { label: '负载', value: '5kg' },
+      { label: '精度', value: '±0.05mm' },
+    ],
+    price: 9999,
+    taxNote: '未税',
     accent: 'ivory',
   },
   {
@@ -55,7 +75,13 @@ export const products: Product[] = [
     tag: 'DUAL',
     image: '/products/twr750-5.jpg',
     desc: '对称安装的双臂结构，双臂协同作业，面向教学科研与仿人操作研究。',
-    params: ['双臂协同', '模块化关节', '科研教学', '仿人操作'],
+    specs: [
+      { label: '臂长', value: '750mm × 2' },
+      { label: '负载', value: '4kg / 5kg' },
+      { label: '精度', value: '±0.03mm' },
+    ],
+    price: 55000,
+    taxNote: '未税',
     video: 'videos/assembly.mp4',
     accent: 'dim',
   },
@@ -67,7 +93,12 @@ export const products: Product[] = [
     tag: 'LEG',
     image: '/products/tw-12.jpg',
     desc: '工业级轻量化四足骨架，铝合金机身，腿部关节清晰可见，面向巡检与运动控制研究。',
-    params: ['四足结构', '铝合金骨架', '多自由度', '运动控制'],
+    specs: [
+      { label: '负载', value: '8kg' },
+      { label: '续航', value: '1.5h' },
+    ],
+    price: 16999,
+    taxNote: '未税',
     video: 'videos/outdoor-demo.mp4',
     accent: 'neon',
   },

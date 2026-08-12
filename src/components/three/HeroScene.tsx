@@ -12,12 +12,15 @@ const DIM = new THREE.Color('#3a4152');
 const sharedDraco = new DRACOLoader();
 sharedDraco.setDecoderPath(import.meta.env.BASE_URL + 'lib/draco/');
 
-/* ---------------- 机械狗（驻留"阿威"标题右侧） ---------------- */
+// 大资源走 jsDelivr GitHub CDN（全球加速 + 长缓存）
+const CDN_BASE = 'https://cdn.jsdelivr.net/gh/weijinwei-git/awei-robot-site@main/';
 
-const PET_URL = import.meta.env.BASE_URL + 'models/bpx.glb';
+/* ---------------- 机械狗（驻留首屏右下角） ---------------- */
+
+const PET_URL = CDN_BASE + 'public/models/bpx.glb';
 const PET_HEIGHT = 764; // 模型原始高度（毫米，STP 单位制）
-const HOME_X = -1.9;
-const HOME_Y = 0.45;
+const HOME_X = 3.1;
+const HOME_Y = -1.35;
 
 type Mood = 'idle' | 'jump' | 'roll' | 'beg';
 
@@ -40,7 +43,7 @@ function PetDogBody({ scene }: { scene: THREE.Scene }) {
     jumpT: -1,
     rollT: -1,
     begT: -1,
-    facing: -0.4,
+    facing: 0.7,
   });
 
   useMemo(() => {
@@ -334,7 +337,7 @@ function ParticleField({ count = 22000 }: { count?: number }) {
 
 /* ---------------- 真实 CR-12E 模型 ---------------- */
 
-const MODEL_URL = import.meta.env.BASE_URL + 'models/cr-12e.glb';
+const MODEL_URL = CDN_BASE + 'public/models/cr-12e.glb';
 const TARGET_HEIGHT = 3.2;
 
 function RobotModel() {
