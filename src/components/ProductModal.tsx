@@ -121,11 +121,12 @@ export default function ProductModal() {
               <p className="mb-3 text-xs uppercase tracking-[0.3em] text-dim">动态演示</p>
               <video
                 src={BASE + product.video}
+                autoPlay
                 muted
                 loop
                 playsinline
                 controls
-                preload="none"
+                preload="auto"
                 className="aspect-video w-full border border-line bg-black object-cover"
               />
             </div>

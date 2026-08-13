@@ -65,6 +65,7 @@ export const products: Product[] = [
     ],
     price: 9999,
     taxNote: '未税',
+    video: 'videos/scara-406-show.mp4',
     accent: 'ivory',
   },
   {
@@ -108,15 +109,14 @@ export const capabilities = [
   { title: '机械设计', desc: '结构设计 · 轻量化 · 模块化', icon: 'MD' },
   { title: '运动控制', desc: '轨迹规划 · 伺服控制 · 标定', icon: 'MC' },
   { title: 'ROS / 二次开发', desc: 'ROS1/2 · 接口封装 · SDK', icon: 'RO' },
-  { title: '电气与集成', desc: '控制柜 · 示教器 · 产线集成', icon: 'EL' },
+  { title: '简单操作', desc: '中文界面 · 可视化示教', icon: 'SO' },
   { title: '视觉与感知', desc: '2D/3D 视觉 · 抓取定位 · 巡检', icon: 'VI' },
 ];
 
-export const stats = [
-  { value: 6, suffix: '+', label: '机器人产品线' },
-  { value: 12, suffix: 'kg', label: '最大负载等级' },
-  { value: 0.01, suffix: 'mm', label: '重复定位精度', decimal: 2 },
-  { value: 100, suffix: '%', label: '自主设计制造' },
+export const sellingPoints = [
+  { en: 'NO LOGO', title: '无LOGO出货', desc: '出厂不贴牌 · 机器以最纯粹的状态交付' },
+  { en: 'BEST VALUE', title: '性价比之王', desc: '同配置低价格 · 同价格高配置' },
+  { en: 'NO TRICKS', title: '互联网不需要套路', desc: '明码标价 · 官网价就是成交价' },
 ];
 
 export const clients = [

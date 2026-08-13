@@ -3,9 +3,8 @@ import Layout from '../layouts/Layout.astro';
 import HeroSceneWithFallback from '../components/three/HeroSceneWithFallback';
 import PetDogLayer from '../components/three/PetDogLayer';
 import ParticleField2D from '../components/ParticleField2D';
-import Counter from '../components/Counter';
 import Marquee from '../components/Marquee.astro';
-import { products, capabilities, stats } from '../data/site';
+import { products, capabilities, sellingPoints } from '../data/site';
 
 const PHONE = '15976196269';
 const base = import.meta.env.BASE_URL;
@@ -175,25 +174,28 @@ const base = import.meta.env.BASE_URL;
   <!-- ============ CAPABILITY ============ -->
   <section id="capability" class="reveal-gsap border-y border-line">
     <div class="grid lg:grid-cols-2">
-      <!-- 左：荧光绿满铺 + 数据 -->
+      <!-- 左：荧光绿满铺 + 三大卖点 -->
       <div class="bg-neon p-10 text-void sm:p-16">
         <p class="mb-3 text-sm font-bold uppercase tracking-[0.35em] text-void/70">/ 02 能力</p>
         <h2 class="font-display text-[clamp(2.6rem,6vw,5rem)] font-black leading-none tracking-tight">
-          能设计
-          <span class="block">能落地</span>
+          能落地
           <span class="block text-void/50">能动起来</span>
         </h2>
         <p class="mt-8 max-w-md leading-relaxed text-void/80">
-          不止画图 —— 结构、电气、控制、上位机一条龙。每一台机器都从零部件开始，自己装配、自己标定、自己写控制。
+          每一台机器都从零部件开始，自己装配、自己标定、自己写控制。
         </p>
-        <div class="mt-12 grid grid-cols-2 gap-8">
-          {stats.map((s) => (
-            <Counter
-              value={s.value}
-              suffix={s.suffix}
-              label={s.label}
-              decimal={s.decimal ?? 0}
-            />
+        <div class="mt-12 grid gap-5 sm:grid-cols-3">
+          {sellingPoints.map((s, i) => (
+            <div class="group relative flex flex-col justify-between overflow-hidden border-2 border-void bg-void p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[8px_8px_0_0_#ffffff]">
+              <span class="pointer-events-none absolute -right-2 -top-4 select-none font-display text-7xl font-black leading-none text-stroke-neon opacity-40 transition-all duration-300 group-hover:opacity-100">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <div>
+                <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-neon/60">{s.en}</p>
+                <h3 class="mt-2 font-display text-xl font-black leading-tight text-ivory">{s.title}</h3>
+              </div>
+              <p class="mt-5 text-xs leading-relaxed text-dim">{s.desc}</p>
+            </div>
           ))}
         </div>
       </div>
